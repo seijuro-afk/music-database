@@ -6,7 +6,7 @@ import mysql.connector
 db = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
-    password="pissword",
+    password="Adobo5093",  #change it to the password you are using
     database="musiclibrarydb"
 )
 
@@ -42,6 +42,7 @@ def fetch_songs(album_id=None):
     songs = cursor.fetchall()
     cursor.close()
     return songs
+
 
 
 # Function to load albums into the albums panel
@@ -144,6 +145,9 @@ right_label.pack(pady=10)
 
 add_song_button = tk.Button(right_frame, text="Add Song", bg="#555555", fg="white", font=("Helvetica", 12))
 add_song_button.pack(pady=10, padx=5, fill=tk.X)
+
+remove_song_button = tk.Button(right_frame, text="Remove Song", bg="#555555", fg="white", font=("Helvetica", 12))
+remove_song_button.pack(pady=10, padx=5, fill=tk.X)
 
 # Run application
 root.mainloop()
