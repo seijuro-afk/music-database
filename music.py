@@ -8,7 +8,7 @@ from add_song import open_add_song_window
 db = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
-    password="pissword",
+    password="Adobo5093",  #change it to the password you are using
     database="musiclibrarydb"
 )
 
@@ -44,6 +44,7 @@ def fetch_songs(album_id=None):
     songs = cursor.fetchall()
     cursor.close()
     return songs
+
 
 
 # Function to load albums into the albums panel

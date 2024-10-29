@@ -4,7 +4,7 @@ from tkcalendar import DateEntry
 from datetime import datetime
 import mysql.connector
 
-# Handle adding new artist or album if they do not exist
+# Handle adding new artist or album
 def get_or_create_artist_id(db, artist_name):
     cursor = db.cursor()
     cursor.execute("SELECT artist_id FROM Artists WHERE name = %s", (artist_name,))
