@@ -1,6 +1,8 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
+from datetime import datetime
 import mysql.connector
+from add_song import open_add_song_window
 
 # Connect to MySQL
 db = mysql.connector.connect(
@@ -129,10 +131,10 @@ for col in columns:
     treeview.column(col, anchor=tk.CENTER)
 
 # Set the widths and alignments of each column
-treeview.column("Song Title", width=200, anchor="w")  # Left-align for song titles
-treeview.column("Artist", width=150, anchor="center")  # Center for artist
-treeview.column("Album", width=150, anchor="center")   # Center for album
-treeview.column("Duration", width=70, anchor="center")  # Center for duration
+treeview.column("Song Title", width=200, anchor="w")
+treeview.column("Artist", width=150, anchor="center")
+treeview.column("Album", width=150, anchor="center")
+treeview.column("Duration", width=70, anchor="center") 
 
 # Initialize GUI content
 load_albums()  # Load albums list
@@ -142,8 +144,9 @@ load_songs()   # Load all songs initially
 right_label = tk.Label(right_frame, text="Actions", font=("Helvetica", 14), bg="#1c1c1c", fg="white")
 right_label.pack(pady=10)
 
-add_song_button = tk.Button(right_frame, text="Add Song", bg="#555555", fg="white", font=("Helvetica", 12))
-add_song_button.pack(pady=10, padx=5, fill=tk.X)
+# Add Song button in the main window
+add_song_button = tk.Button(right_frame, text="Add Song", command=lambda: open_add_song_window(db, root), bg="#555555", fg="white", font=("Helvetica", 12))
+add_song_button.pack(side=tk.RIGHT, padx=20, pady=20)
 
 # Run application
 root.mainloop()
