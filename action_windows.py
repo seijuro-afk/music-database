@@ -3,29 +3,7 @@ from tkinter import messagebox, ttk
 from tkcalendar import DateEntry
 from datetime import datetime
 import mysql.connector
-
-# Handle adding new artist or album
-def get_create_artist(db, artist_name):
-    cursor = db.cursor()
-    cursor.execute("SELECT artist_id FROM Artists WHERE name = %s", (artist_name,))
-    result = cursor.fetchone()
-    if result:
-        return result[0]  # Return existing artist_id
-    else:
-        cursor.execute("INSERT INTO Artists (name) VALUES (%s)", (artist_name,))
-        db.commit()
-        return cursor.lastrowid  # Return new artist_id
-
-def get_create_album(db, album_name, artist_id):
-    cursor = db.cursor()
-    cursor.execute("SELECT album_id FROM Albums WHERE title = %s AND artist_id = %s", (album_name, artist_id))
-    result = cursor.fetchone()
-    if result:
-        return result[0]  # Return existing album_id
-    else:
-        cursor.execute("INSERT INTO Albums (title, artist_id) VALUES (%s, %s)", (album_name, artist_id))
-        db.commit()
-        return cursor.lastrowid  # Return new album_id
+import fetch
 
 # Function to open the Add Song window
 def open_add_song_window(db, root):
@@ -84,8 +62,8 @@ def open_add_song_window(db, root):
             return
 
         # Process artist and album creation if they don't exist
-        artist_id = get_create_artist(db, artist_name) if artist_name else None
-        album_id = get_create_album(db, album_name, artist_id) if album_name else None
+        artist_id = fetch.get_create_artist(db, artist_name) if artist_name else None
+        album_id = fetch.get_create_album(db, album_name, artist_id) if album_name else None
 
         cursor = db.cursor()
         try:
@@ -136,25 +114,10 @@ def open_remove_song_window(db, root):
     song_tree.column("Artist", width=150, anchor="center")
     song_tree.column("Album", width=150, anchor="center")
 
-    # Fetch songs from the database
-    def fetch_songs(search_term=""):
-        cursor = db.cursor()
-        query = """
-            SELECT s.song_id, s.title, a.name AS artist, al.title AS album
-            FROM Songs s
-            LEFT JOIN Artists a ON s.artist_id = a.artist_id
-            LEFT JOIN Albums al ON s.album_id = al.album_id
-            WHERE s.title LIKE %s
-            """
-        cursor.execute(query, (f"%{search_term}%",))
-        songs = cursor.fetchall()
-        cursor.close()
-        return songs
-
     # Load songs into Treeview based on search input
     def load_songs():
         search_term = search_entry.get()
-        songs = fetch_songs(search_term)
+        songs = fetch.search_songs(db, search_term)
 
         # Clear current entries in the tree
         for item in song_tree.get_children():
@@ -197,3 +160,131 @@ def open_remove_song_window(db, root):
 
     # Load songs initially
     load_songs()
+
+def open_add_album_window(db, root):
+    # Create new Toplevel window for adding an album
+    add_album_window = tk.Toplevel(root)
+    add_album_window.title("Add New Album")
+    add_album_window.geometry("700x450")
+    add_album_window.config(bg="#1c1c1c")
+
+    # Configure layout: left for song table, right for album details
+    left_frame = tk.Frame(add_album_window, bg="#1c1c1c")
+    left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(10, 5), pady=10)
+
+    right_frame = tk.Frame(add_album_window, bg="#1c1c1c")
+    right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(5, 10), pady=10)
+
+    # Song Table
+    columns = ("Title", "Duration (mins)")
+    song_tree = ttk.Treeview(left_frame, columns=columns, show="headings", selectmode="extended")
+    song_tree.pack(expand=True, fill=tk.BOTH)
+
+    for col in columns:
+        song_tree.heading(col, text=col)
+    song_tree.column("Title", width=200, anchor="w")
+    song_tree.column("Duration (mins)", width=120, anchor="center")
+
+    # Add button to add a new song entry to the table
+    def add_song():
+        song_tree.insert("", "end", values=("Enter Title", "Enter Duration"))
+
+    add_song_button = tk.Button(left_frame, text="Add Song", command=add_song, bg="#555555", fg="white")
+    add_song_button.pack(pady=10)
+
+    # Make table editable
+    def edit_cell(event):
+        selected_item = song_tree.selection()
+        if not selected_item:
+            return
+
+        item = selected_item[0]
+        col = song_tree.identify_column(event.x)
+        col_num = int(col.replace("#", "")) - 1
+
+        # Get current cell value
+        x, y, width, height = song_tree.bbox(item, col)
+        value = song_tree.item(item, "values")[col_num]
+
+        # Create an Entry widget for editing
+        edit_widget = tk.Entry(left_frame)
+        edit_widget.insert(0, value)
+        edit_widget.select_range(0, tk.END)
+        edit_widget.focus()
+        edit_widget.place(x=x, y=y, width=width, height=height)
+
+        # Update cell value on Enter or focus out
+        def save_edit(event=None):
+            new_value = edit_widget.get()
+            song_values = list(song_tree.item(item, "values"))
+            song_values[col_num] = new_value
+            song_tree.item(item, values=song_values)
+            edit_widget.destroy()
+
+        edit_widget.bind("<Return>", save_edit)
+        edit_widget.bind("<FocusOut>", lambda e: edit_widget.destroy())
+
+    song_tree.bind("<Double-1>", edit_cell)
+
+    # Album Details 
+    label_font = ("Arial", 12)
+    entry_font = ("Arial", 11)
+    fields = {}
+
+    tk.Label(right_frame, text="Album Title:", font=label_font, fg="white", bg="#1c1c1c").pack(anchor="w", pady=(20, 5))
+    fields["Title"] = tk.Entry(right_frame, font=entry_font, width=25)
+    fields["Title"].pack(pady=5)
+
+    tk.Label(right_frame, text="Artist:", font=label_font, fg="white", bg="#1c1c1c").pack(anchor="w", pady=(10, 5))
+    fields["Artist"] = tk.Entry(right_frame, font=entry_font, width=25)
+    fields["Artist"].pack(pady=5)
+
+    tk.Label(right_frame, text="Date Created:", font=label_font, fg="white", bg="#1c1c1c").pack(anchor="w", pady=(10, 5))
+    fields["Date"] = DateEntry(right_frame, font=entry_font, width=22, background="darkblue", foreground="white", borderwidth=2)
+    fields["Date"].set_date(datetime.now())
+    fields["Date"].pack(pady=5)
+
+    # Back and Confirm Buttons
+    def confirm_album():
+        confirm = messagebox.askyesno("Confirm", "Are you sure you want to add this album?")
+        if confirm:
+            album_title = fields["Title"].get()
+            artist = fields["Artist"].get()
+            created_at = fields["Date"].get_date()
+
+            # Gather song data from the table
+            songs = []
+            for item in song_tree.get_children():
+                song_data = song_tree.item(item)["values"]
+                songs.append(song_data)
+
+            # Insert album and songs into the database
+            try:
+                cursor = db.cursor()
+                artist_id = fetch.get_create_artist(db, artist)
+                album_id = fetch.get_create_album(db, album_title, artist_id)
+
+                for song in songs:
+                    song_title, duration = song
+                    cursor.execute(
+                        "INSERT INTO Songs (title, artist_id, album_id, duration, created_at) VALUES (%s, %s, %s, %s, %s)",
+                        (song_title, artist_id, album_id, duration, created_at)
+                    )
+
+                db.commit()
+                messagebox.showinfo("Success", "Album and songs added successfully!")
+                add_album_window.destroy()
+            except Exception as e:
+                db.rollback()
+                messagebox.showerror("Error", f"Failed to add album and songs: {e}")
+            finally:
+                cursor.close()
+
+    def go_back():
+        add_album_window.destroy()
+
+    back_button = tk.Button(right_frame, text="Back", command=go_back, bg="#333333", fg="white", font=label_font)
+    back_button.pack(pady=(30, 10))
+
+    confirm_button = tk.Button(right_frame, text="Confirm", command=confirm_album, bg="#4CAF50", fg="white", font=label_font)
+    confirm_button.pack(pady=10)
