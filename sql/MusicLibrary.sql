@@ -41,6 +41,8 @@ CREATE TABLE Songs (
     album_id INT,
     genre VARCHAR(50),
     duration FLOAT,
+    views INT,
+    likes INT,
     released_at DATE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
