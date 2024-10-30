@@ -60,7 +60,7 @@ def login():
 # Tkinter GUI
 root = tk.Tk()
 root.title("Signup/ Login Frame")
-root.geometry("400x300")  # Set larger window size
+root.geometry("400x300")
 
 # Dark theme colors
 bg_color = "#1a1a1a"
