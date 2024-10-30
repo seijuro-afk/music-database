@@ -2,13 +2,13 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 import mysql.connector
-from add_song import open_add_song_window
+import song_interact
 
 # Connect to MySQL
 db = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
-    password="Adobo5093",  #change it to the password you are using
+    password="pissword",  #change it to the password you are using
     database="musiclibrarydb"
 )
 
@@ -17,7 +17,7 @@ print(db)
 # Function to fetch all albums and add "All Songs"
 def fetch_albums():
     cursor = db.cursor()
-    cursor.execute("SELECT id, title FROM Albums")
+    cursor.execute("SELECT album_id, title FROM Albums")
     albums = cursor.fetchall()
     cursor.close()
     # Insert "All Songs" option at the beginning of the list
@@ -31,20 +31,19 @@ def fetch_songs(album_id=None):
             SELECT s.title, a.name AS artist, al.title AS album, s.duration
             FROM Songs s
             JOIN Artists a ON s.artist_id = a.artist_id
-            JOIN Albums al ON s.album_id = al.id
+            JOIN Albums al ON s.album_id = al.album_id
         """)
     else:
         cursor.execute("""
             SELECT s.title, a.name AS artist, al.title AS album, s.duration
             FROM Songs s
             JOIN Artists a ON s.artist_id = a.artist_id
-            JOIN Albums al ON s.album_id = al.id
-            WHERE al.id = %s
+            JOIN Albums al ON s.album_id = al.album_id
+            WHERE al.album_id = %s
         """, (album_id,))
     songs = cursor.fetchall()
     cursor.close()
     return songs
-
 
 
 # Function to load albums into the albums panel
@@ -146,8 +145,12 @@ right_label = tk.Label(right_frame, text="Actions", font=("Helvetica", 14), bg="
 right_label.pack(pady=10)
 
 # Add Song button in the main window
-add_song_button = tk.Button(right_frame, text="Add Song", command=lambda: open_add_song_window(db, root), bg="#555555", fg="white", font=("Helvetica", 12))
-add_song_button.pack(side=tk.RIGHT, padx=20, pady=20)
+add_song_button = tk.Button(right_frame, text="Add Song", command=lambda: song_interact.open_add_song_window(db, root), bg="#555555", fg="white", font=("Helvetica", 12))
+add_song_button.pack(padx=10, pady=10)
+
+remove_song_button = tk.Button(right_frame, text="Remove Song", command=lambda: song_interact.open_remove_song_window(db, root), bg="#555555", fg="white", font=("Helvetica", 12))
+remove_song_button.pack(pady=10, padx=10, fill=tk.X)
+
 
 # Run application
 root.mainloop()
