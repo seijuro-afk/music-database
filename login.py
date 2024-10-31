@@ -53,8 +53,8 @@ def login_screen(db, start_main_app_callback):
     def on_signup():
         signup(db, entry_username.get(), entry_email.get(), entry_password.get())
 
-    def on_login():
-        username = authenticate(db, entry_email.get(), entry_password.get())
+    def on_login(username, password):
+        username = authenticate(db, username, password)
         if username:
             messagebox.showinfo("Login", "Login successful!")
             login_root.destroy()  # Close login window
@@ -62,7 +62,8 @@ def login_screen(db, start_main_app_callback):
         else:
             messagebox.showerror("Login", "Invalid email or password.")
 
-    tk.Button(login_root, text="Sign Up", command=on_signup, bg="#555555", fg=entry_fg, font=label_font).grid(row=3, column=0, pady=20)
-    tk.Button(login_root, text="Login", command=on_login, bg="#555555", fg=entry_fg, font=label_font).grid(row=3, column=1, pady=20)
+    tk.Button(login_root, text="Sign Up", command=on_signup, bg="#555555", fg=entry_fg, font=label_font).grid(row=3, column=0, pady=10)
+    tk.Button(login_root, text="Login", command=lambda: on_login(entry_email.get(), entry_password.get()), bg="#555555", fg=entry_fg, font=label_font).grid(row=3, column=1, pady=10)
+    tk.Button(login_root, text="Login as Guest", command=lambda: on_login("guest@gmail.com", "1234"), bg="#555555", fg=entry_fg, font=label_font).grid(row=4, column=1, pady=10)
 
     login_root.mainloop()

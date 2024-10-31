@@ -30,14 +30,14 @@ def songs_by_album(db, album_id=None):
     cursor = db.cursor()
     if album_id == "All Songs" or album_id is None:
         cursor.execute("""
-            SELECT s.title, a.name AS artist, al.title AS album, s.duration
+            SELECT s.title, a.name AS artist, al.title AS album, s.genre, s.duration
             FROM Songs s
             JOIN Artists a ON s.artist_id = a.artist_id
             JOIN Albums al ON s.album_id = al.album_id
         """)
     else:
         cursor.execute("""
-            SELECT s.title, a.name AS artist, al.title AS album, s.duration
+            SELECT s.title, a.name AS artist, al.title AS album, s.genre, s.duration
             FROM Songs s
             JOIN Artists a ON s.artist_id = a.artist_id
             JOIN Albums al ON s.album_id = al.album_id
@@ -51,7 +51,7 @@ def songs_by_album(db, album_id=None):
 def search_songs(db, search_term=""):
     cursor = db.cursor()
     query = """
-        SELECT s.song_id, s.title, a.name AS artist, al.title AS album
+        SELECT s.song_id, s.title, a.name AS artist, al.title AS album, s.genre, s.duration
         FROM Songs s
         LEFT JOIN Artists a ON s.artist_id = a.artist_id
         LEFT JOIN Albums al ON s.album_id = al.album_id

@@ -66,3 +66,6 @@ CREATE TABLE Songs_Playlists (
     FOREIGN KEY (song_id) REFERENCES Songs(song_id) ON DELETE CASCADE,
     FOREIGN KEY (playlist_id) REFERENCES Playlists(playlist_id) ON DELETE CASCADE
 );
+
+INSERT INTO Accounts (username, email, password)
+VALUES("Guest", "guest@gmail.com", "1234");

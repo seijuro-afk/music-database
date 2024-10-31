@@ -21,8 +21,8 @@ def initialize(db, root, username):
             treeview.delete(row)
         # Fetch and populate songs
         songs = fetch.songs_by_album(db, album_id)
-        for title, artist, album, duration in songs:
-            treeview.insert("", tk.END, values=(title, artist, album, duration))
+        for title, artist, album, genre, duration in songs:
+            treeview.insert("", tk.END, values=(title, artist, album, genre, duration))
 
     # Event handler for album selection
     def on_album_select(event):
@@ -68,7 +68,7 @@ def initialize(db, root, username):
     middle_frame.pack(side=tk.LEFT, fill=tk.Y, expand=True)
 
     # Create a Treeview for the songs
-    columns = ("Song Title", "Artist", "Album", "Duration")
+    columns = ("Song Title", "Artist", "Album", "Genre", "Duration")
     treeview = ttk.Treeview(middle_frame, columns=columns, show='headings', height=25)
     treeview.pack(pady=10, padx=10)
 
@@ -88,6 +88,7 @@ def initialize(db, root, username):
     treeview.column("Song Title", width=200, anchor="w")
     treeview.column("Artist", width=150, anchor="center")
     treeview.column("Album", width=150, anchor="center")
+    treeview.column("Genre", width=100, anchor="center")
     treeview.column("Duration", width=70, anchor="center") 
 
     # Initialize GUI content
@@ -98,6 +99,10 @@ def initialize(db, root, username):
     right_label = tk.Label(right_frame, text=f"Welcome, {username}", font=("Helvetica", 12), bg="#1c1c1c", fg="white")
     right_label.pack(pady=10)
 
+    right_label = tk.Label(right_frame, text="Admin", font=("Helvetica", 9), bg="#1c1c1c", fg="white")
+    right_label.pack(pady=10)
+
+
     # Add Song button in the main window
     add_song_button = tk.Button(right_frame, text="Add Song", command=lambda: action_windows.open_add_song_window(db, root), bg="#555555", fg="white", font=("Helvetica", 12))
     add_song_button.pack(padx=10, pady=10)
@@ -107,3 +112,9 @@ def initialize(db, root, username):
 
     add_album_button = tk.Button(right_frame, text="Add Album", command=lambda: action_windows.open_add_album_window(db, root), bg="#555555", fg="white", font=("Helvetica", 12))
     add_album_button.pack(padx=10, pady=10)
+
+    right_label = tk.Label(right_frame, text="User", font=("Helvetica", 9), bg="#1c1c1c", fg="white")
+    right_label.pack(pady=10)
+
+    upload_album_button = tk.Button(right_frame, text="Upload Album", command=lambda: action_windows.open_upload_album_window(db, root, username), bg="#555555", fg="white", font=("Helvetica", 12))
+    upload_album_button.pack(padx=10, pady=10)
