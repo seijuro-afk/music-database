@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from datetime import datetime
 import mysql.connector
 from mysql.connector import Error
 
@@ -22,12 +23,13 @@ def signup():
     username = entry_username.get()
     email = entry_email.get()
     password = entry_password.get()
-
+    created_at = datetime.now()
     connection = create_connection()
     if connection is not None:
         cursor = connection.cursor()
         try:
-            cursor.execute("INSERT INTO Accounts (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
+            cursor.execute("INSERT INTO account (username, email, password, created_at) VALUES (%s, %s, %s, %s)", 
+                           (username, email, password, created_at))
             connection.commit()
             messagebox.showinfo("Signup", "Account created successfully!")
         except Error as e:
@@ -45,7 +47,7 @@ def login():
     if connection is not None:
         cursor = connection.cursor()
         try:
-            cursor.execute("SELECT * FROM Accounts WHERE email = %s AND password = %s", (email, password))
+            cursor.execute("SELECT * FROM account WHERE email = %s AND password = %s", (email, password))
             account = cursor.fetchone()
             if account:
                 messagebox.showinfo("Login", "Login successful!")
