@@ -1,37 +1,35 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import Toplevel, Label, Frame, Canvas, Entry, N
 from PIL import Image, ImageTk
-import mysql.connector
-
-connection = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    password = "add password here",
-    database = "add database here"
-)
+import os
 
 class MusicPlayer:
     def __init__(self, root):
         self.root = root
-        self.root.title("Music Player")
-        self.root.configure(bg="black")
+        self.new_window = Toplevel(root)
+        self.new_window.title("Music Player")
+        self.new_window.configure(bg="black")
+        self.new_window.geometry("800x600")
+
+        # Exit Protocol
+        self.new_window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # Main frame to ensure consistent background
-        self.main_frame = tk.Frame(root, bg="#2e2e2e")
+        self.main_frame = Frame(self.new_window, bg="#2e2e2e")
         self.main_frame.place(x=0, y=0, width=800, height=600)
 
         # Create a canvas for the rounded border
-        self.search_canvas = tk.Canvas(self.main_frame, bg="#dddddd", highlightthickness=0)
-        self.search_canvas.place(relx=0.5, rely=0, anchor=tk.N, width=410, height=40)
+        self.search_canvas = Canvas(self.main_frame, bg="#dddddd", highlightthickness=0)
+        self.search_canvas.place(relx=0.5, rely=0, anchor=N, width=410, height=40)
 
         # Draw a rounded rectangle
         self.create_rounded_rectangle(self.search_canvas, 5, 5, 405, 35, 10, outline="#2e2e2e", width=2)
 
         # Search frame on the canvas
-        self.search_frame = tk.Frame(self.search_canvas, bg="#2e2e2e")
+        self.search_frame = Frame(self.search_canvas, bg="#2e2e2e")
         self.search_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER, width=400, height=30)
 
-        self.search_entry = tk.Entry(self.search_frame, bg="#333333", fg="white", relief=tk.FLAT)
+        self.search_entry = Entry(self.search_frame, bg="#333333", fg="white", relief=tk.FLAT)
         self.search_entry.pack(side=tk.LEFT, padx=10, pady=5, fill=tk.X, expand=True)
 
         # Placeholder text
@@ -86,6 +84,7 @@ class MusicPlayer:
 
         # Dummy progress for demonstration
         self.progress = self.progress_canvas.create_rectangle(5, 5, 50, 10, fill="#999999", outline="")
+
 
         # Load and resize images using PIL
         self.previous_image = Image.open("prev.png")
@@ -153,8 +152,6 @@ class MusicPlayer:
         else:
             self.like_button.config(text='Like')
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.geometry("800x600")
-    app = MusicPlayer(root)
-    root.mainloop()
+    def on_closing(self):
+        self.new_window.destroy
+        self.root.destroy()

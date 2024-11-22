@@ -3,6 +3,7 @@ from tkinter import messagebox
 from datetime import datetime
 import mysql.connector
 from mysql.connector import Error
+from user_view.user_view import MusicPlayer
 
 # Connect to MySQL database
 def create_connection():
@@ -32,6 +33,8 @@ def signup():
                            (username, email, password, created_at))
             connection.commit()
             messagebox.showinfo("Signup", "Account created successfully!")
+            MusicPlayer(root)
+            root.withdraw()
         except Error as e:
             messagebox.showerror("Signup Error", f"Error: {e}")
         finally:
@@ -51,6 +54,8 @@ def login():
             account = cursor.fetchone()
             if account:
                 messagebox.showinfo("Login", "Login successful!")
+                MusicPlayer(root)
+                root.withdraw()
             else:
                 messagebox.showerror("Login", "Invalid email or password.")
         except Error as e:
