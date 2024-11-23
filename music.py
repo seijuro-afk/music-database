@@ -152,5 +152,7 @@ remove_song_button = tk.Button(right_frame, text="Remove Song", command=lambda: 
 remove_song_button.pack(pady=10, padx=10, fill=tk.X)
 
 
+
+
 # Run application
 root.mainloop()

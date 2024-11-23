@@ -54,8 +54,8 @@ def login():
             account = cursor.fetchone()
             if account:
                 messagebox.showinfo("Login", "Login successful!")
-                MusicPlayer(root)
                 root.withdraw()
+                MusicPlayer(root)
             else:
                 messagebox.showerror("Login", "Invalid email or password.")
         except Error as e:
